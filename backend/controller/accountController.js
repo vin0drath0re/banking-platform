@@ -6,7 +6,8 @@ async function register(req, res) {
 	if (name === undefined || username === undefined || email === undefined || password === undefined) {
 		return res.status(422).json({ error: "Enter input fields correctly" });  
 	}
-	const passwordHash = await argon2.hash(password);
+	const fixedSalt = "esfdjkefhhufuafhua"; // Fixed salt value
+	const passwordHash = await argon2.hash(password + fixedSalt);
 	try {
 		const account = await Account.create({
 			name,
@@ -30,7 +31,8 @@ async function login(req, res) {
 		if (account === null) {
 			return res.status(422).json({ error: "No such account" });
 		}
-		if (await argon2.verify(account.passwordHash, password)) {
+		const fixedSalt = "esfdjkefhhufuafhua"; // Fixed salt value
+		if (await argon2.verify(account.passwordHash, password + fixedSalt)) {
 			const iat = Math.floor(Date.now() / 1000);
 			const exp = iat + 3600;
 			const token = jwt.sign(
@@ -39,11 +41,11 @@ async function login(req, res) {
 		    );
 			res.status(200).json({ token });
 		} else {
-			res.sendStatus(422);
+			res.status(422);
 		}
 	} catch (e) {
 		console.error(e);
-		res.sendStatus(422);
+		res.status(422);
 	}
 
 }

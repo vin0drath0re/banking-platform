@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { UserPlus, Mail, User, Lock, CheckCircle } from "lucide-react"
 import { useRouter, redirect } from "next/navigation"
+import { z } from "zod"; // Import zod
 
 export default function RegisterPage() {
   if (typeof window === 'undefined') return <></>;
@@ -15,16 +16,32 @@ export default function RegisterPage() {
     redirect("/dashboard");
   }
 
+  const passwordSchema = z.string().min(8).regex(/[A-Z]/, "Must include an uppercase letter").regex(/[a-z]/, "Must include a lowercase letter").regex(/[0-9]/, "Must include a number").regex(/[@$!%*?&#]/, "Must include a special character");
+
   const handleRegister = (event) => {
     event.preventDefault();
-    if (event.target.password.value !== event.target.confirmPassword.value) alert("Passwords do not match");
+    const password = event.target.password.value;
+    const confirmPassword = event.target.confirmPassword.value;
+
+    try {
+      passwordSchema.parse(password); // Validate password
+    } catch (error) {
+      alert(error.errors[0].message);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
     const form = event.target;
     const formdata = new FormData(form);
     const final = {};
     for (const p of formdata) {
       final[p[0]] = p[1];
     }
-    fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/account/register", {
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/account/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -39,6 +56,7 @@ export default function RegisterPage() {
       }
     });
   };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 text-white flex flex-col overflow-hidden">
       {/* Background elements */}
