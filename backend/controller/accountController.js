@@ -1,6 +1,8 @@
 import * as argon2 from 'argon2';
 import { Account, Admin, Loan, Transaction } from "../models.js";
 import jwt from "jsonwebtoken";
+const logger = require("../middleware/logger.js");
+
 async function register(req, res) {
 	const { name, username, email, password } = req.body;
 	if (name === undefined || username === undefined || email === undefined || password === undefined) {
@@ -15,8 +17,10 @@ async function register(req, res) {
 			email,
 			passwordHash
 		});
+		logger.info(`Account registered: ${username}`);
 		res.status(200).json({ accountNumber: account.accountNumber });
 	} catch (e) {
+		logger.error(`Registration error: ${e.message}`);
 		res.status(422).json({ error: e.errors[0].message });
 	}
 }
@@ -39,12 +43,14 @@ async function login(req, res) {
 			{ iat, sub: username, exp, isAdmin: false },
 			process.env.JWT_SECRET,
 		    );
+			logger.info(`Login successful: ${username}`);
 			res.status(200).json({ token });
 		} else {
+			logger.warn(`Login failed: Invalid password for ${username}`);
 			res.status(422);
 		}
 	} catch (e) {
-		console.error(e);
+		logger.error(`Login error: ${e.message}`);
 		res.status(422);
 	}
 
@@ -53,8 +59,10 @@ async function login(req, res) {
 async function balance(req, res) {
 	try {
 		const { balance } = await Account.findOne({ where: { username: req.auth.sub } });
+		logger.info(`Balance retrieved for user: ${req.auth.sub}`);
 		res.status(200).json({ balance });
 	} catch (e) {
+		logger.error(`Balance retrieval error: ${e.message}`);
 		res.sendStatus(422);
 	}
 }
@@ -62,8 +70,10 @@ async function balance(req, res) {
 async function details(req, res) {
 	try {
 		const { accountNumber, username, email, } = await Account.findOne({ where: { username: req.auth.sub } });
+		logger.info(`Details retrieved for user: ${req.auth.sub}`);
 		res.status(200).json({ accountNumber, username, email, });
 	} catch (e) {
+		logger.error(`Details retrieval error: ${e.message}`);
 		res.sendStatus(422);
 	}
 }
@@ -71,24 +81,30 @@ async function details(req, res) {
 async function transactions(req, res) {
 	try {
 		const transactions = await Transaction.findAll({ where: { username: req.auth.sub } });
+		logger.info(`Transactions retrieved for user: ${req.auth.sub}`);
 		res.status(200).json(transactions);
 	} catch (e) {
+		logger.error(`Transactions retrieval error: ${e.message}`);
 		res.sendStatus(422);
 	}
 }
 
-async function loans() {
+async function loans(req, res) {
 	try {
 		const loans = await Loan.findAll({ where: { username: req.auth.sub } });
+		logger.info(`Loans retrieved for user: ${req.auth.sub}`);
 		res.status(200).json(loans);
 	} catch (e) {
+		logger.error(`Loans retrieval error: ${e.message}`);
 		res.sendStatus(422);
 	}
 }
 
-async function addPaymentMethod() {
+async function addPaymentMethod(req, res) {
 	try {
+		logger.info(`Payment method added for user: ${req.auth.sub}`);
 	} catch (e) {
+		logger.error(`Add payment method error: ${e.message}`);
 		res.sendStatus(422);
 	}
 }

@@ -6,6 +6,13 @@ const sequelize = new Sequelize({
   storage: './database.sqlite'
 });
 
+const express = require("express");
+const morgan = require("morgan");
+const logger = require("./logger");
+
+
+
+
 import express from 'express';
 import cors from "cors";
 const app = express();
@@ -15,6 +22,18 @@ const PORT = process.env.PORT || 8000;
 import accountRoutes from "./routes/accountRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import loanRoutes from "./routes/loanRoutes.js";
+
+
+
+// Log HTTP requests
+app.use(
+  morgan("combined", {
+    stream: {
+      write: (message) => logger.info(message.trim()),
+    },
+  })
+);
+
 
 app.use("/account", accountRoutes);
 app.use("/admin", adminRoutes);
