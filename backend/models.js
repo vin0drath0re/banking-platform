@@ -47,6 +47,11 @@ const Account = sequelize.define(
       defaultValue: DataTypes.NOW,
       allowNull: false,
     },
+    passwordLastUpdated: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+      allowNull: false,
+    },
   },
 );
 
@@ -60,6 +65,16 @@ const Admin = sequelize.define(
     },
     passwordHash: {
       type: DataTypes.STRING,
+      allowNull: false,
+    },
+    lastUpdated: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+      allowNull: false,
+    },
+    passwordLastUpdated: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
       allowNull: false,
     },
   },
@@ -135,6 +150,6 @@ const Loan = sequelize.define(
 //  username: "admin",
 //  passwordHash: await argon2.hash("admin")
 //});
-await sequelize.sync();
+await sequelize.sync({alter: true});
 export { Account, Admin, Transaction, Loan };
 /* vi: set et sw=2: */

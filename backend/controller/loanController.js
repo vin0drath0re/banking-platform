@@ -1,6 +1,6 @@
 import * as argon2 from 'argon2';
 import { Account, Admin, Loan, Transaction } from "../models.js";
-const logger = require("../middleware/logger.js");
+import logger from '../middleware/logger.js';
 
 async function approve(req, res) {
 	try {

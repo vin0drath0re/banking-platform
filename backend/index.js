@@ -6,13 +6,9 @@ const sequelize = new Sequelize({
   storage: './database.sqlite'
 });
 
-const express = require("express");
-const morgan = require("morgan");
-const logger = require("./logger");
+import logger from './middleware/logger.js';
 
-
-
-
+import morgan from 'morgan';
 import express from 'express';
 import cors from "cors";
 const app = express();

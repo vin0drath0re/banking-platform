@@ -1,5 +1,10 @@
-const winston = require("winston");
-const path = require("path");
+import winston from "winston";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Resolve __dirname for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Create logger instance
 const logger = winston.createLogger({
@@ -22,4 +27,4 @@ if (process.env.NODE_ENV !== "production") {
   logger.add(new winston.transports.Console({ format: winston.format.simple() }));
 }
 
-module.exports = logger;
+export default logger;

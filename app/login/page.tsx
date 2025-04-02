@@ -17,29 +17,43 @@ export default function LoginPage() {
     redirect("/dashboard");
   }
 
-  const handleLogin = (event) => {
+  const handleLogin = async (event: any) => {
     event.preventDefault();
+    const router = useRouter();
+  
     const form = event.target;
     const formdata = new FormData(form);
     const final = {};
     for (const p of formdata) {
-      final[p[0]] = p[1];
+        final[p[0]] = p[1];
     }
-    fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/account/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(final)
-    }).then(resp => resp.json()).then(data => {
+  
+    try {
+      const resp = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/account/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(final)
+      });
+  
+      if (resp.status === 403) {
+        return router.replace("/change-password"); 
+      }
+  
+      const data = await resp.json();
+  
       if ("error" in data) {
         alert(data.error);
       } else {
         localStorage.setItem("username", event.target.username.value);
         localStorage.setItem("token", data.token);
-        router.replace("/dashboard");
+        router.replace("/dashboard"); 
       }
-    });
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("An error occurred while logging in. Please try again.");
+    }
   };
 
   const handleAdminLogin = (event) => {

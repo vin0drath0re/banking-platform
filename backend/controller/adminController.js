@@ -1,7 +1,7 @@
 import * as argon2 from 'argon2';
 import { Account, Admin, Loan, Transaction } from "../models.js";
 import jwt from "jsonwebtoken";
-const logger = require("../middleware/logger.js");
+import logger from '../middleware/logger.js';
 
 async function login(req, res) {
 	const { username, password } = req.body;

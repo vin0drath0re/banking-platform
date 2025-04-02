@@ -1,7 +1,10 @@
 import * as argon2 from 'argon2';
 import { Account, Admin, Loan, Transaction } from "../models.js";
 import jwt from "jsonwebtoken";
-const logger = require("../middleware/logger.js");
+import logger from '../middleware/logger.js';
+import moment from "moment";
+
+const PASSWORD_EXPIRY_DAYS = 90;
 
 async function register(req, res) {
 	const { name, username, email, password } = req.body;
@@ -43,6 +46,14 @@ async function login(req, res) {
 			{ iat, sub: username, exp, isAdmin: false },
 			process.env.JWT_SECRET,
 		    );
+
+			const lastUpdated = moment(account.passwordLastUpdated);
+			const now = moment();
+	
+			if (now.diff(lastUpdated, "days") > PASSWORD_EXPIRY_DAYS) {
+				return res.status(403).json({ message: "Password expired. Please reset your password." });
+			}
+
 			logger.info(`Login successful: ${username}`);
 			res.status(200).json({ token });
 		} else {
